@@ -55,11 +55,18 @@ jobs:
 #               --name ${{ github.run_id }} \
 #               --template-file ${{ env.WORKDIR }}/main.bicep \
 #               --parameters resourcesPrefix=${{ steps.resources_prefix.outputs.result }} \
-#               --location westeurope > whatif
-
-      - name: blah
-        run: ls > whatif
+#               --location ${{ secrets.LOCATION }} > whatif
       
+      # Preview changes
+      - name: "What-If"
+        uses: Azure/cli@v1
+        with:
+          inlineScript: |
+            az deployment sub what-if \
+              --name whatif-${{ github.run_id }} \
+              --template-file ${{ env.WORKDIR }}/main.bicep \
+              --location ${{ secrets.LOCATION }} > whatif
+            
       - name: DEBUG
         run: ls
               
