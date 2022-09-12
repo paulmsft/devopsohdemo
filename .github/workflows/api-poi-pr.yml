@@ -12,15 +12,14 @@ on:
 env:
   DOTNET_VERSION: "3.1.x"
 
-# Set defaults for GitHub Actions runner
-defaults:
-  run:
-    working-directory: "apis/poi"
-
 jobs:
   buildtest:
     name: "Build and Test"
     runs-on: ubuntu-latest
+    # Set defaults for GitHub Actions runner
+    defaults:
+      run:
+        working-directory: "apis/poi"
     outputs:
       test_results: ${{ steps.unittestoutput.outputs.test_results }}
       test_outcome: ${{ steps.unittestoutput.outputs.test_outcome }}
@@ -79,11 +78,12 @@ jobs:
           test_results="${test_results//'%'/'%25'}"
           test_results="${test_results//$'\n'/'%0A'}"
           test_results="${test_results//$'\r'/'%0D'}"
+          
           echo "::set-output name=test_results::${test_results}"
           echo "::set-output name=test_outcome::${{ steps.unittest.outcome }}"
 
   reportbug:
-    name: "Report Bug for non PR runs"
+    name: "Report Bug for non-PR runs"
     needs: buildtest
     if: needs.buildtest.outputs.test_outcome == 'failure' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -120,17 +120,18 @@ jobs:
               labels: ['bug'],
               assignees: [context.actor]
             })
-
+            
       # break the workflow
-      - name: "Unit Tests Status"
+      - name: "Fail workflow"
         env:
           UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
         run: |
           echo "${{ env.UNIT_TEST_RESULTS }}"
           exit 1
 
+
   reportprcomment:
-    name: "Report to PR comment fo PR runs"
+    name: "Report to PR comment for PR runs"
     needs: buildtest
     if: needs.buildtest.outputs.test_outcome == 'failure' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -158,7 +159,7 @@ jobs:
             })
 
       # break the workflow
-      - name: "Unit Tests Status"
+      - name: "Fail workflow"
         env:
           UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
         run: |
