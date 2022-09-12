@@ -55,10 +55,10 @@ jobs:
               --name ${{ github.run_id }} \
               --template-file ${{ env.WORKDIR }}/main.bicep \
               --parameters resourcesPrefix=${{ steps.resources_prefix.outputs.result }} \
-              --location ${{ secrets.LOCATION }} > ${{ env.WORKDIR }}/whatif
+              --location ${{ secrets.LOCATION }} > whatif
       
       - name: DEBUG
-        run: ls ${{ env.WORKDIR }}
+        run: ls
               
 #       # Create string output of Whatif
 #       - name: Create String Output
