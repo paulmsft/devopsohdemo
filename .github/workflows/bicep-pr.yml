@@ -48,6 +48,7 @@ jobs:
         uses: Azure/cli@v1
         with:
           inlineScript: az bicep build --file ${{ env.WORKDIR }}/main.bicep
+        id: lint
 
       # Validate whether a template is valid at subscription scope
       - name: Bicep Validate
@@ -59,3 +60,19 @@ jobs:
               --template-file ${{ env.WORKDIR }}/main.bicep \
               --location "${{ secrets.LOCATION }}" \
               --parameters resourcesPrefix=${{ steps.resources_prefix.outputs.result }}
+        id: validate
+              
+      - name: Update Pull Request
+        uses: actions/github-script@v6.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Bicep Lint 🖌\`${{ steps.lint.outcome }}\`
+            #### Bicep Validation 🤖\`${{ steps.validate.outcome }}\`
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
