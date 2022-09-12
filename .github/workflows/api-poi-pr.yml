@@ -47,16 +47,31 @@ jobs:
           test ${PIPESTATUS[0]} -eq 0
         continue-on-error: true
 
-      - name: "Transform Unit Tests output"
+      - name: "Transform unit tests output"
         id: unittestoutput
-        if: steps.unittest.outcome == 'failure'
+#         if: steps.unittest.outcome == 'failure'
         run: |
-          test_results=$(cat test_results.txt)
+          RESULTS=$(cat test_results.txt)
+          echo "## Unit Tests Output" >> results.string
+          echo "<details><summary>Click view test results</summary>" >> results.string
+          echo "" >> results.string
+          echo "```" >> results.string
+          echo "$RESULTS" >> results.string
+          echo "```" >> results.string
+          echo "</details>" >> results.string
+          
+          test_results=$(cat results.string)
           test_results="${test_results//'%'/'%25'}"
           test_results="${test_results//$'\n'/'%0A'}"
           test_results="${test_results//$'\r'/'%0D'}"
+          
           echo "::set-output name=test_results::${test_results}"
           echo "::set-output name=test_outcome::${{ steps.unittest.outcome }}"
+          
+      # Publish unit tests output as summary
+      - name: Publish Unit Tests Output to Task Summary
+        run: |
+          cat results.string >> $GITHUB_STEP_SUMMARY
 
   reportbug:
     name: "Report Bug for non PR runs"
