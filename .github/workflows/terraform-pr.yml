@@ -30,12 +30,33 @@ jobs:
       # Checks that all Terraform configuration files adhere to a canonical format
       - name: Terraform Lint
         run: terraform fmt -check -recursive
+        id: fmt
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       # for validation remote state is not required => -backend=false
       - name: Terraform Init
         run: terraform init -backend=false
+        id: init
 
       # Validate terraform configuration
       - name: Terraform Validate
         run: terraform validate
+        if: validate
+
+      - name: Update Pull Request
+        uses: actions/github-script@6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
