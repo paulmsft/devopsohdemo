@@ -55,7 +55,7 @@ jobs:
               --name ${{ github.run_id }} \
               --template-file ${{ env.WORKDIR }}/main.bicep \
               --parameters resourcesPrefix=${{ steps.resources_prefix.outputs.result }} \
-              --location ${{ secrets.LOCATION }} > whatif
+              --location westeurope > whatif
       
       - name: DEBUG
         run: ls
