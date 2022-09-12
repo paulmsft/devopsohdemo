@@ -62,13 +62,10 @@ jobs:
         uses: Azure/cli@v1
         with:
           inlineScript: |
-            az deployment sub what-if \
-              --name whatif-${{ github.run_id }} \
-              --template-file main.bicep \
-              --location ${{ secrets.LOCATION }} > whatif
+            az deployment sub what-if --name whatif-${{ github.run_id }} --template-file ${{ env.WORKDIR }}/main.bicep --location ${{ secrets.LOCATION }} > iac/bicep/whatif
             
       - name: DEBUG
-        run: ls
+        run: cat whatif
               
 #       # Create string output of Whatif
 #       - name: Create String Output
