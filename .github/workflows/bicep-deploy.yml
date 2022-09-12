@@ -46,76 +46,66 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-#       # Preview changes
-#       - name: "What-If"
-#         uses: Azure/cli@v1
-#         with:
-#           inlineScript: |
-#             az deployment sub what-if \
-#               --name ${{ github.run_id }} \
-#               --template-file ${{ env.WORKDIR }}/main.bicep \
-#               --parameters resourcesPrefix=${{ steps.resources_prefix.outputs.result }} \
-#               --location ${{ secrets.LOCATION }} > whatif
-      
       # Preview changes
       - name: "What-If"
         uses: Azure/cli@v1
         with:
           inlineScript: |
-            az deployment sub what-if --name whatif-${{ github.run_id }} --template-file ${{ env.WORKDIR }}/main.bicep --location ${{ secrets.LOCATION }} > iac/bicep/whatif
-            
-      - name: DEBUG
-        run: cat whatif
+            az deployment sub what-if \
+              --name ${{ github.run_id }} \
+              --template-file ${{ env.WORKDIR }}/main.bicep \
+              --parameters resourcesPrefix=${{ steps.resources_prefix.outputs.result }} \
+              --location ${{ secrets.LOCATION }} > iac/bicep/whatif
               
-#       # Create string output of Whatif
-#       - name: Create String Output
-#         id: whatif-string
-#         run: |
-#           WHATIF=$(cat ${{ env.WORKDIR }}/whatif)
-#           echo "## Bicep What-If Output" >> whatif.string
-#           echo "<details><summary>Click to expand</summary>" >> whatif.string
-#           echo "" >> whatif.string
-#           echo '```' >> whatif.string
-#           echo "$WHATIF" >> whatif.string
-#           echo '```' >> whatif.string
-#           echo "</details>" >> whatif.string
+      # Create string output of Whatif
+      - name: Create String Output
+        id: whatif-string
+        run: |
+          WHATIF=$(cat ${{ env.WORKDIR }}/whatif)
+          echo "## Bicep What-If Output" >> whatif.string
+          echo "<details><summary>Click to expand</summary>" >> whatif.string
+          echo "" >> whatif.string
+          echo '```' >> whatif.string
+          echo "$WHATIF" >> whatif.string
+          echo '```' >> whatif.string
+          echo "</details>" >> whatif.string
 
-#           SUMMARY=$(cat whatif.string)
-#           SUMMARY="${SUMMARY//'%'/'%25'}"
-#           SUMMARY="${SUMMARY//$'\n'/'%0A'}"
-#           SUMMARY="${SUMMARY//$'\r'/'%0D'}"
+          SUMMARY=$(cat whatif.string)
+          SUMMARY="${SUMMARY//'%'/'%25'}"
+          SUMMARY="${SUMMARY//$'\n'/'%0A'}"
+          SUMMARY="${SUMMARY//$'\r'/'%0D'}"
 
-#           echo "::set-output name=summary::$SUMMARY"
+          echo "::set-output name=summary::$SUMMARY"
 
-#       # Publish Bicep What-If as task summary
-#       - name: Publish What-If to Task Summary
-#         run: |
-#           cat whatif.string >> $GITHUB_STEP_SUMMARY
+      # Publish Bicep What-If as task summary
+      - name: Publish What-If to Task Summary
+        run: |
+          cat whatif.string >> $GITHUB_STEP_SUMMARY
 
-#   deploy:
-#     name: "Deploy"
-#     needs: preview
-#     runs-on: ubuntu-latest
-#     environment: 'IaC Production'
+  deploy:
+    name: "Deploy"
+    needs: preview
+    runs-on: ubuntu-latest
+    environment: 'IaC Production'
 
-#     steps:
-#       # Checkout the repository to the GitHub Actions runner
-#       - name: Checkout
-#         uses: actions/checkout@v2
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-#       # Login to Azure with Service Principal
-#       - name: "Azure Login"
-#         uses: Azure/login@v1
-#         with:
-#           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Login to Azure with Service Principal
+      - name: "Azure Login"
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-#       # Deploy
-#       - name: "Deployment"
-#         uses: Azure/cli@v1
-#         with:
-#           inlineScript: |
-#             az deployment sub create \
-#               --name ${{ github.run_id }} \
-#               --template-file ${{ env.WORKDIR }}/main.bicep \
-#               --location "${{ secrets.LOCATION }}" \
-#               --parameters resourcesPrefix=${{ needs.preview.outputs.RESOURCES_PREFIX }}
+      # Deploy
+      - name: "Deployment"
+        uses: Azure/cli@v1
+        with:
+          inlineScript: |
+            az deployment sub create \
+              --name ${{ github.run_id }} \
+              --template-file ${{ env.WORKDIR }}/main.bicep \
+              --location "${{ secrets.LOCATION }}" \
+              --parameters resourcesPrefix=${{ needs.preview.outputs.RESOURCES_PREFIX }}
