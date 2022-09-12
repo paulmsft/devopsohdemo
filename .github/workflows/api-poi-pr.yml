@@ -47,30 +47,29 @@ jobs:
           test ${PIPESTATUS[0]} -eq 0
         continue-on-error: true
 
-      - name: debugcat
-        run: cat test_results.txt
-
       # Create string output
       - name: Create String Output
         run: |
-          WHATIF=$(cat test_results.txt)
-          echo "## Bicep What-If Output" >> whatif.string
-          echo "<details><summary>Click to expand</summary>" >> whatif.string
-          echo "" >> whatif.string
-          echo '```' >> whatif.string
-          echo "$WHATIF" >> whatif.string
-          echo '```' >> whatif.string
-          echo "</details>" >> whatif.string
-          SUMMARY=$(cat whatif.string)
+          RESULT=$(cat test_results.txt)
+          echo "## Unit Tests Output" >> result.string
+          echo "<details><summary>Click to view unit tests output</summary>" >> result.string
+          echo "" >> result.string
+          echo '```' >> result.string
+          echo "$RESULT" >> result.string
+          echo '```' >> result.string
+          echo "</details>" >> result.string
+          
+          SUMMARY=$(cat result.string)
           SUMMARY="${SUMMARY//'%'/'%25'}"
           SUMMARY="${SUMMARY//$'\n'/'%0A'}"
           SUMMARY="${SUMMARY//$'\r'/'%0D'}"
+          
           echo "::set-output name=summary::$SUMMARY"
           
       # Publish task summary
       - name: Publish to Task Summary
         run: |
-          cat whatif.string >> $GITHUB_STEP_SUMMARY
+          cat result.string >> $GITHUB_STEP_SUMMARY
 
 #       - name: "Transform unit tests output"
 #         id: unittestoutput
