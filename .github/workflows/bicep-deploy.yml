@@ -25,7 +25,7 @@ jobs:
     name: "Preview Changes"
     runs-on: ubuntu-latest
     outputs:
-      RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
+      RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}      
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -64,7 +64,7 @@ jobs:
           inlineScript: |
             az deployment sub what-if \
               --name whatif-${{ github.run_id }} \
-              --template-file ${{ env.WORKDIR }}/main.bicep \
+              --template-file main.bicep \
               --location ${{ secrets.LOCATION }} > whatif
             
       - name: DEBUG
