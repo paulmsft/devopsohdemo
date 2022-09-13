@@ -31,6 +31,7 @@ jobs:
     outputs:
       TFPLAN_EXITCODE: ${{ steps.tfplan.outputs.exitcode }}
 #       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
+      tfplanExitCode: ${{ steps.tfplan.outputs.exitcode }}
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -111,7 +112,7 @@ jobs:
    needs: preview
    runs-on: ubuntu-latest
    environment: IaC Production
-
+   if: needs.preview.outputs.tfplanExitCode == 2
    steps:
      # Checkout the repository to the GitHub Actions runner
      - name: Checkout
