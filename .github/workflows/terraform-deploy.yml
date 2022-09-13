@@ -57,13 +57,14 @@ jobs:
 #       # An exit code of 2 indicates there were changes detected and will throw an error on GitHub Action. "|| exit 0" overrides it. Just continue for now, we'll check next step
 #       - name: Terraform Plan
 #         run: terraform plan -detailed-exitcode -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ env.RESOURCES_PREFIX }}" -out tfplan -input=false || exit 0
+
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
         id: tfplan
         run: |
           export exitcode=0
-          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+          terraform plan -detailed-exitcode -out tfplan -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ env.RESOURCES_PREFIX }}" || export exitcode=$?
           echo "::set-output name=exitcode::$exitcode"
 
           if [ $exitcode -eq 1 ]; then
