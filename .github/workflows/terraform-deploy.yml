@@ -67,13 +67,7 @@ jobs:
           export exitcode=0
           terraform plan -detailed-exitcode -out tfplan -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ env.RESOURCES_PREFIX }}" || export exitcode=$?
           echo "::set-output name=exitcode::$exitcode"
-
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else 
-            exit 0
-          fi
+          echo $exitcode
           
       # Save plan to artifacts  
       - name: Publish Terraform Plan
