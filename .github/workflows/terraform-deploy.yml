@@ -95,7 +95,6 @@ jobs:
    needs: preview
    runs-on: ubuntu-latest
    environment: IaC Production
-   if: needs.preview.outputs.tfplanExitCode == 2
    steps:
      # Checkout the repository to the GitHub Actions runner
      - name: Checkout
