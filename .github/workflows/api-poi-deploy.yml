@@ -56,7 +56,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: "Build Docker image using Azure Container Registry"
+      - name: "Build and push Docker image using Azure Container Registry"
         uses: Azure/cli@v1
         with:
           inlineScript: az acr build --image ${{ env.DOCKER_IMAGE_BASE_NAME }}:${{ github.run_id }} --registry ${{ steps.resources_prefix.outputs.result }}cr.azurecr.io --build-arg build_version=${{ github.run_id }} --file ${{ env.WORKDIR }}/Dockerfile ${{ env.WORKDIR }}
@@ -66,7 +66,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: poi-production
+      name: POI Production
       url: "${{ steps.deploy-to-webapp.outputs.webapp-url }}/api/version/${{ env.API_NAME }}"
     env:
       RESOURCES_PREFIX: ${{ needs.build.outputs.RESOURCES_PREFIX }}
