@@ -30,20 +30,20 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       TFPLAN_EXITCODE: ${{ steps.tfplan.outputs.exitcode }}
-      RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
+#       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
 
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Get RESOURCES_PREFIX based on the repo name
-      - name: Get repo name
-        uses: actions/github-script@v5
-        id: resources_prefix
-        with:
-          result-encoding: string
-          script: return context.repo.repo.toLowerCase()
+#       # Get RESOURCES_PREFIX based on the repo name
+#       - name: Get repo name
+#         uses: actions/github-script@v5
+#         id: resources_prefix
+#         with:
+#           result-encoding: string
+#           script: return context.repo.repo.toLowerCase()
 
       # Install the latest version of Terraform CLI
       - name: Setup Terraform
@@ -56,7 +56,7 @@ jobs:
       # Generates an execution plan for Terraform
       # An exit code of 2 indicates there were changes detected and will throw an error on GitHub Action. "|| exit 0" overrides it. Just continue for now, we'll check next step
       - name: Terraform Plan
-        run: terraform plan -detailed-exitcode -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ steps.resources_prefix.outputs.result }}" || exit 0
+        run: terraform plan -detailed-exitcode -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=piveyterraform" || exit 0
         id: tfplan
 
   deploy:
