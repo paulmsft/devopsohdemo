@@ -28,9 +28,9 @@ jobs:
   preview:
     name: "Preview Changes"
     runs-on: ubuntu-latest
-    outputs:
-      TFPLAN_EXITCODE: ${{ steps.tfplan.outputs.exitcode }}
-#       RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
+#    outputs:
+#      TFPLAN_EXITCODE: ${{ steps.tfplan.outputs.exitcode }}
+#      RESOURCES_PREFIX: ${{ steps.resources_prefix.outputs.result }}
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -56,13 +56,12 @@ jobs:
       # Generates an execution plan for Terraform
       # An exit code of 2 indicates there were changes detected and will throw an error on GitHub Action. "|| exit 0" overrides it. Just continue for now, we'll check next step
       - name: Terraform Plan
-        run: terraform plan -detailed-exitcode -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=piveyterraform" || exit 0
+        run: terraform plan -detailed-exitcode -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=piveyterraform"
         id: tfplan
 
   deploy:
     name: "Deploy"
     needs: preview
-    if: needs.preview.outputs.TFPLAN_EXITCODE == 2 # it is not part of the challenge, but nice to have
     runs-on: ubuntu-latest
     environment: production
 
@@ -88,4 +87,4 @@ jobs:
 
       # Terraform Apply
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ needs.preview.outputs.RESOURCES_PREFIX }}"
+        run: terraform apply -auto-approve -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=piveyterraform"
