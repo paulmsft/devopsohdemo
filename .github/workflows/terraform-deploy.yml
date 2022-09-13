@@ -52,22 +52,11 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init -backend-config=resource_group_name="${{ secrets.TFSTATE_RESOURCES_GROUP_NAME }}" -backend-config=storage_account_name="${{ secrets.TFSTATE_STORAGE_ACCOUNT_NAME }}" -backend-config=container_name="${{ secrets.TFSTATE_STORAGE_CONTAINER_NAME }}" -backend-config=key="testing.tfstate" 
+        run: terraform init -backend-config=resource_group_name="${{ secrets.TFSTATE_RESOURCES_GROUP_NAME }}" -backend-config=storage_account_name="${{ secrets.TFSTATE_STORAGE_ACCOUNT_NAME }}" -backend-config=container_name="${{ secrets.TFSTATE_STORAGE_CONTAINER_NAME }}" -backend-config=key="${{ secrets.TFSTATE_KEY }}"
         
-#       # Generates an execution plan for Terraform
-#       # An exit code of 2 indicates there were changes detected and will throw an error on GitHub Action. "|| exit 0" overrides it. Just continue for now, we'll check next step
-#       - name: Terraform Plan
-#         run: terraform plan -detailed-exitcode -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ env.RESOURCES_PREFIX }}" -out tfplan -input=false || exit 0
-
       # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
-        id: tfplan
-        run: |
-          export exitcode=0
-          terraform plan -detailed-exitcode -out tfplan -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ env.RESOURCES_PREFIX }}" || export exitcode=$?
-          echo "::set-output name=exitcode::$exitcode"
-          echo $exitcode
+        run: terraform plan -var="location=${{ secrets.LOCATION }}" -var="resources_prefix=${{ env.RESOURCES_PREFIX }}" -out tfplan -input=false
           
       # Save plan to artifacts  
       - name: Publish Terraform Plan
@@ -125,7 +114,7 @@ jobs:
 
      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
      - name: Terraform Init
-       run: terraform init -backend-config=resource_group_name="${{ secrets.TFSTATE_RESOURCES_GROUP_NAME }}" -backend-config=storage_account_name="${{ secrets.TFSTATE_STORAGE_ACCOUNT_NAME }}" -backend-config=container_name="${{ secrets.TFSTATE_STORAGE_CONTAINER_NAME }}" -backend-config=key="testing.tfstate"
+       run: terraform init -backend-config=resource_group_name="${{ secrets.TFSTATE_RESOURCES_GROUP_NAME }}" -backend-config=storage_account_name="${{ secrets.TFSTATE_STORAGE_ACCOUNT_NAME }}" -backend-config=container_name="${{ secrets.TFSTATE_STORAGE_CONTAINER_NAME }}" -backend-config=key="${{ secrets.TFSTATE_KEY }}"
 
      # Download saved plan from artifacts  
      - name: Download Terraform Plan
