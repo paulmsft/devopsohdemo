@@ -87,6 +87,9 @@ jobs:
     needs: buildtest
     if: needs.buildtest.outputs.test_outcome == 'failure' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "apis/poi"
     steps:
 #       - name: "Create an issue (bug)"
 #         uses: actions/github-script@v5.0.0
