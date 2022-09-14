@@ -41,7 +41,7 @@ jobs:
       - name: "Run Unit Tests"
         id: unittest
         run: |
-          dotnet test --no-build --results-directory ./TestResults --filter "FullyQualifiedName~UnitTest" |& tee test_results.txt
+          dotnet test --no-build --results-directory ./TestResults --filter "FullyQualifiedName~UnitTest" |& tee test_results.trx
 
           # break if 'dotnet test' failed
           test ${PIPESTATUS[0]} -eq 0
@@ -52,7 +52,7 @@ jobs:
         uses: dorny/test-reporter@v1
         with:
           name: Test results
-          path: "${{ env.WORKDIR }}/TestResults/test_results.txt"
+          path: "${{ env.WORKDIR }}/TestResults/test_results.trx"
           reporter: dotnet-trx
           fail-on-error: false
 
