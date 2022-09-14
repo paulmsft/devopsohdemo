@@ -137,7 +137,7 @@ jobs:
           Pusher: @${{ github.actor }}'
 
           title='Unit Tests failure'
-          gh issue create --title "${title}" --body "${body}" --label bug --assignee ${{ github.actor }} --project "pivey team backlog"
+          gh issue create --title "${title}" --body "${body}" --label bug --assignee ${{ github.actor }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
