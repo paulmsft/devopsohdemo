@@ -41,7 +41,7 @@ jobs:
       - name: "Run Unit Tests"
         id: unittest
         run: |
-          dotnet test --no-build --filter "FullyQualifiedName~UnitTest" |& tee test_results.txt
+          dotnet test --no-build --results-directory ./TestResults --filter "FullyQualifiedName~UnitTest" |& tee test_results.txt
 
           # break if 'dotnet test' failed
           test ${PIPESTATUS[0]} -eq 0
@@ -59,7 +59,7 @@ jobs:
       # Create string output
       - name: Create String Output
         run: |
-          RESULT=$(cat test_results.txt)
+          RESULT=$(cat TestResults/test_results.txt)
           echo "## Unit Tests Output" >> result.string
           echo "<details><summary>Click to view unit tests output</summary>" >> result.string
           echo "" >> result.string
