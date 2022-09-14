@@ -88,39 +88,59 @@ jobs:
     if: needs.buildtest.outputs.test_outcome == 'failure' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
+#       - name: "Create an issue (bug)"
+#         uses: actions/github-script@v5.0.0
+#         env:
+#           UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
+#         with:
+#           script: |
+#             const body = `#### Unit Tests \`${{ needs.buildtest.outputs.test_outcome }}\`
+#             <details>
+#             <summary>Workflow details</summary>\n
+#             Workflow name - \`${{ github.workflow }}\`
+#             Action - \`${{ github.event_name }}\`
+#             Job - \`${{ github.job }}\`
+#             PR - #${{ github.event.number }}
+#             </details>\n
+#             <details>
+#             <summary>Unit Tests details</summary>\n
+#             \`\`\`
+#             ${process.env.UNIT_TEST_RESULTS}
+#             \`\`\`\n
+#             </details>\n
+#             Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\``;
+
+#             const title = `Unit Tests ${{ needs.buildtest.outputs.test_outcome }}`
+
+#             github.rest.issues.create({
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               title: title,
+#               body: body,
+#               labels: ['bug'],
+#               assignees: [context.actor]
+#               project: 'pivey team backlog'
+#             })
+
       - name: "Create an issue (bug)"
-        uses: actions/github-script@v5.0.0
+        if: failure() && github.event_name != 'pull_request'
+        run: |
+          body='### Unit Test `failure`
+          <details>
+          <summary>Workflow details</summary>
+
+          Workflow name: `${{ github.workflow }}`
+          Action: `${{ github.event_name }}`
+          Job: `${{ github.job }}`
+          </details>
+
+          Test details: [Run #${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          Pusher: @${{ github.actor }}'
+
+          title='Unit Tests failure'
+          gh issue create --title "${title}" --body "${body}" --label bug --assignee ${{ github.actor }} --project "pivey team backlog"
         env:
-          UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
-        with:
-          script: |
-            const body = `#### Unit Tests \`${{ needs.buildtest.outputs.test_outcome }}\`
-            <details>
-            <summary>Workflow details</summary>\n
-            Workflow name - \`${{ github.workflow }}\`
-            Action - \`${{ github.event_name }}\`
-            Job - \`${{ github.job }}\`
-            PR - #${{ github.event.number }}
-            </details>\n
-            <details>
-            <summary>Unit Tests details</summary>\n
-            \`\`\`
-            ${process.env.UNIT_TEST_RESULTS}
-            \`\`\`\n
-            </details>\n
-            Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\``;
-
-            const title = `Unit Tests ${{ needs.buildtest.outputs.test_outcome }}`
-
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: ['bug'],
-              assignees: [context.actor]
-              project: 'pivey team backlog'
-            })
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
       # break the workflow
       - name: "Fail workflow"
