@@ -119,6 +119,7 @@ jobs:
               body: body,
               labels: ['bug'],
               assignees: [context.actor]
+              project: 'pivey team backlog'
             })
             
       # break the workflow
