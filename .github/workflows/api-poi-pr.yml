@@ -16,10 +16,6 @@ jobs:
   buildtest:
     name: "Build and Test"
     runs-on: ubuntu-latest
-    # Set defaults for GitHub Actions runner
-    defaults:
-      run:
-        working-directory: "apis/poi"
     outputs:
       test_results: ${{ steps.unittestoutput.outputs.test_results }}
       test_outcome: ${{ steps.unittestoutput.outputs.test_outcome }}
@@ -33,9 +29,11 @@ jobs:
 
       - name: "Restore dependencies"
         run: dotnet restore
+        working-directory: "apis/poi"
 
       - name: "Build the App"
         run: dotnet build --no-restore
+        working-directory: "apis/poi"
 
       - name: "Run Unit Tests"
         id: unittest
@@ -45,6 +43,7 @@ jobs:
           # break if 'dotnet test' failed
           test ${PIPESTATUS[0]} -eq 0
         continue-on-error: true
+        working-directory: "apis/poi"
 
       # Create string output
       - name: Create String Output
@@ -64,11 +63,13 @@ jobs:
           SUMMARY="${SUMMARY//$'\r'/'%0D'}"
           
           echo "::set-output name=summary::$SUMMARY"
+        working-directory: "apis/poi"
           
       # Publish task summary
       - name: Publish to Task Summary
         run: |
           cat result.string >> $GITHUB_STEP_SUMMARY
+        working-directory: "apis/poi"
 
       - name: "Transform Unit Tests output"
         id: unittestoutput
@@ -81,48 +82,9 @@ jobs:
           
           echo "::set-output name=test_results::${test_results}"
           echo "::set-output name=test_outcome::${{ steps.unittest.outcome }}"
-
-  reportbug:
-    name: "Report Bug for non-PR runs"
-    needs: buildtest
-    if: needs.buildtest.outputs.test_outcome == 'failure' && github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-#       - name: "Create an issue (bug)"
-#         uses: actions/github-script@v5.0.0
-#         env:
-#           UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
-#         with:
-#           script: |
-#             const body = `#### Unit Tests \`${{ needs.buildtest.outputs.test_outcome }}\`
-#             <details>
-#             <summary>Workflow details</summary>\n
-#             Workflow name - \`${{ github.workflow }}\`
-#             Action - \`${{ github.event_name }}\`
-#             Job - \`${{ github.job }}\`
-#             PR - #${{ github.event.number }}
-#             </details>\n
-#             <details>
-#             <summary>Unit Tests details</summary>\n
-#             \`\`\`
-#             ${process.env.UNIT_TEST_RESULTS}
-#             \`\`\`\n
-#             </details>\n
-#             Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\``;
-
-#             const title = `Unit Tests ${{ needs.buildtest.outputs.test_outcome }}`
-
-#             github.rest.issues.create({
-#               owner: context.repo.owner,
-#               repo: context.repo.repo,
-#               title: title,
-#               body: body,
-#               labels: ['bug'],
-#               assignees: [context.actor]
-#               project: 'pivey team backlog'
-#             })
-
+          
       - name: "Create an issue (bug)"
+        if: steps.unittest.outcome == 'failure' && github.event_name != 'pull_request'
         run: |
           body='### Unit Test `failure`
           <details>
@@ -136,28 +98,15 @@ jobs:
           Test details: [Run #${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           Pusher: @${{ github.actor }}'
 
-          title='Unit Tests failure'
+          title='POI Unit Tests failure'
           gh issue create --title "${title}" --body "${body}" --label bug --assignee ${{ github.actor }}
+          exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            
-      # break the workflow
-      - name: "Fail workflow"
-        env:
-          UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
-        run: |
-          echo "${{ env.UNIT_TEST_RESULTS }}"
-          exit 1
 
-
-  reportprcomment:
-    name: "Report to PR comment for PR runs"
-    needs: buildtest
-    if: needs.buildtest.outputs.test_outcome == 'failure' && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
       - name: "Create a PR comment"
         uses: actions/github-script@v5.0.0
+        if: steps.unittest.outcome == 'failure' && github.event_name == 'pull_request'
         env:
           UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
         with:
@@ -177,11 +126,8 @@ jobs:
               issue_number: context.issue.number,
               body: body
             })
-
+            
       # break the workflow
       - name: "Fail workflow"
-        env:
-          UNIT_TEST_RESULTS: "${{ needs.buildtest.outputs.test_results }}"
-        run: |
-          echo "${{ env.UNIT_TEST_RESULTS }}"
-          exit 1
+        if: steps.unittest.outcome == 'failure' && github.event_name == 'pull_request'
+        run: exit 1
