@@ -1,5 +1,5 @@
-/apis/poi/ @DevOpsOpenHack/devopsohpivey
-/apis/trips/ @DevOpsOpenHack/devopsohpivey
-/apis/user-java/ @DevOpsOpenHack/devopsohpivey
-/apis/userprofile/ @DevOpsOpenHack/devopsohpivey
-/iac/ @DevOpsOpenHack/devopsohpivey
+/apis/poi/ @paul-iveylabs
+/apis/trips/ @paul-iveylabs
+/apis/user-java/ @paul-iveylabs
+/apis/userprofile/ @paul-iveylabs
+/iac/ @paul-iveylabs
