@@ -8,6 +8,10 @@ on:
       - "apis/poi/**"
   workflow_dispatch:
 
+permissions:
+  issues: write
+  pull-requests: write
+
 # Set envs
 env:
   DOTNET_VERSION: "3.1.x"
