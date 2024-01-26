@@ -9,6 +9,11 @@ on:
       - "iac/bicep/**"
   workflow_dispatch:
 
+permissions:
+  issues: write
+  pull-requests: write
+
+
 # Set envs
 env:
   WORKDIR: "iac/bicep"
