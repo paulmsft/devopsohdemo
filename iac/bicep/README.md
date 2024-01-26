@@ -1,1 +1,1 @@
-# Testing IaC
+Testing IaC
